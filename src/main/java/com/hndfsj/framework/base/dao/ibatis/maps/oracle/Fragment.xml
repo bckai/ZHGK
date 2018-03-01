@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="Fragment">
+	<sql id="basicSearchWrap">
+		<isNotEmpty property="sortCol">
+           order by $sortCol$ $sortOrder$
+		</isNotEmpty>
+	</sql>
+
+	<sql id="pageBegin">
+		<isNotEmpty property="currentPage">
+			<isGreaterThan property="currentPage" compareValue="0">
+				select * from (select a.*,rownum as linenum from ( 
+			</isGreaterThan>
+		</isNotEmpty>
+	</sql>
+	<sql id="pageEnd">
+		<isNotEmpty property="currentPage">
+			<isGreaterThan property="currentPage" compareValue="0">
+				) a where rownum &lt;= $end$)  where linenum &gt;=$start$
+			</isGreaterThan>
+		</isNotEmpty>
+	</sql>
+	
+	<sql id="simpleAndCondition">
+		<dynamic prepend="where">
+			<isNotEmpty property="andConditions">
+				<iterate property="andConditions" conjunction="and">
+				$andConditions[].key$ $andConditions[].operator$ #andConditions[].value#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="simpleOrCondition">
+		<dynamic prepend="where">
+			<isNotEmpty property="orConditions">
+				<iterate property="orConditions" conjunction="or">
+				$orConditions[].key$ $orConditions[].operator$ #orConditions[].value#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<sql id="setUpdateParam">
+		<dynamic prepend="set">
+			<iterate property="params" conjunction=",">
+			$params[].name$ = #params[].value#
+			</iterate>
+		</dynamic>
+	</sql>
+</sqlMap>

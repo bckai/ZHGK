@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.4//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="defaultExecutorType" value="REUSE" />
+	</settings>
+	<mappers>
+		<mapper resource="com/hndfsj/framework/base/dao/ibatis/maps/mysql/Fragment.xml" />
+		<!--admin -->
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/Dept.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/Dictionary.xml" />
+		<mapper
+			resource="com/hndfsj/admin/dao/ibatis/maps/mysql/MobileErrorDetails.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/Module.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/Resource.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/Role.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/User.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/UserLoginLog.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/UserOperLogs.xml" />
+		<mapper resource="com/hndfsj/admin/dao/ibatis/maps/mysql/UserNode.xml" />
+
+		<!-- 设备 -->
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/CmsShowlist.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/CmsStruct.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/Device.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/DeviceConfig.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/DsStruct.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/VdStruct.xml" />
+		<mapper resource="com/hndfsj/app/device/dao/ibatis/maps/mysql/WsStruct.xml" />
+		
+		<!-- 交通事件 -->
+		<mapper resource="com/hndfsj/app/trafficevent/dao/ibatis/maps/mysql/TrafficEvent.xml"/>
+		<mapper resource="com/hndfsj/app/trafficevent/dao/ibatis/maps/mysql/TrafficEventComment.xml"/>
+		
+	</mappers>
+</configuration>

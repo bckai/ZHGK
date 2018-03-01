@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:schedule="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/task
+http://www.springframework.org/schema/task/spring-task.xsd   
+		 http://www.springframework.org/schema/websocket
+    http://www.springframework.org/schema/websocket/spring-websocket.xsd">
+	<!--spring 父容器(ROOT容器)总配置 -->
+	<!--spring 子容器(MVC web容器)的父容器 -->
+	<!--业务层与持久层配置 -->
+	<context:component-scan base-package="com.hndfsj">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+	<import resource="dataAccessContext-local.xml" />
+	<import resource="applicationContext-scheduleTimer.xml" />
+	<import resource="applicationServiceContext.xml" />
+	<import resource="applicationContext-security.xml" />
+	<import resource="applicationContext-ehcache.xml" />
+</beans>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder location="classpath*:jdbc.properties" />
+
+	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+		<property name="slowSqlMillis" value="1000" />
+		<property name="logSlowSql" value="true" />
+	</bean>
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url}</value>
+		</property>
+
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="proxyFilters">
+			<list>
+				<ref bean="stat-filter" />
+			</list>
+		</property>
+
+		<property name="maxActive">
+			<value>50</value>
+		</property>
+		<property name="initialSize">
+			<value>5</value>
+		</property>
+		<property name="maxWait">
+			<value>60000</value>
+		</property>
+		<property name="minIdle">
+			<value>5</value>
+		</property>
+		<property name="removeAbandoned">
+			<value>true</value>
+		</property>
+
+		<!-- 关闭abanded连接时输出错误日志 -->
+		<property name="logAbandoned" value="true" />
+
+		<property name="removeAbandonedTimeout">
+			<value>18000</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property> <!-- 打开检查,用异步线程evict进行检查 -->
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testOnReturn">
+			<value>false</value>
+		</property>
+		<property name="validationQuery">
+			<value>select 1 </value>
+		</property>
+
+		<property name="minEvictableIdleTimeMillis">
+			<value>300000</value>
+		</property>
+		<property name="timeBetweenEvictionRunsMillis">
+			<value>60000</value>
+		</property>
+		<property name="numTestsPerEvictionRun">
+			<value>50</value>
+		</property>
+		<property name="filters" value="config" />
+		<property name="connectionProperties" value="config.decrypt=true" />
+	</bean>
+
+	<!-- 默认的实现，除了Oracle其他数据库使用此实现 -->
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
+	<!-- 本地jdbc连接抽取器和oracle lobhandler类 用于存取流程定义文件 oracle only? <bean id="nativeJdbcExtractor" 
+		class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" 
+		lazy-init="true" /> <bean id="oracleLobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler" 
+		lazy-init="true"> <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor" 
+		/> </bean> -->
+
+	<!-- SqlMap setup for myBATIS Database Layer -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+		   >
+		<property name="configLocation" value="${sql.map.config}" />
+		<property name="dataSource" ref="dataSource" />
+		</bean>
+	<!--class : 指定自动扫描 xxxMapper.xml 映射文件的类 basePackage: 自动扫描的配置包
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+		p:basePackage="com."
+		p:sqlSessionFactoryBeanName="sqlSessionFactory" /> -->
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+</beans>

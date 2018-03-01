@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="User">
+
+	<resultMap id="user1" type="com.hndfsj.admin.domain.User">
+		<result property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="realname" column="realname" />
+		<result property="sex" column="sex" />
+		<result property="post" column="post" />
+		<result property="mobile" column="mobile" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="address" column="address" />
+		<result property="userType" column="userType" />
+		<result property="isValid" column="isValid" />
+		<result property="deptId" column="deptId" />
+		<result property="loginTime" column="loginTime" />
+		<result property="signPath" column="signPath" />
+		<result property="sort" column="sort" />
+		<result property="deleted" column="deleted" />
+		<result property="createTime" column="createTime" />
+	</resultMap>
+	<resultMap id="user" type="com.hndfsj.admin.domain.User"
+		extends="user1">
+		<result property="password" column="password" />
+	</resultMap>
+	<resultMap id="userRole" type="com.hndfsj.admin.domain.User"
+		extends="user1">
+		<association property="roles" column="id"
+			select="Role.getRoleAssignByUserId">
+		</association>
+		<association property="headImg" column="id"
+			select="Values.getValueById">
+		</association>
+	</resultMap>
+	<resultMap id="userDeptName" type="com.hndfsj.admin.domain.User"
+		extends="user1">
+	</resultMap>
+	<resultMap id="manageUser" type="com.hndfsj.admin.domain.User"
+		extends="userDeptName">
+		<association property="roles" column="id"
+			select="Role.getRoleAssignByUserId">
+		</association>
+	</resultMap>
+
+	<resultMap id="userSecurity" type="com.hndfsj.admin.domain.User">
+		<result property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="realname" column="realname" />
+		<result property="sex" column="sex" />
+		<result property="post" column="post" />
+		<result property="mobile" column="mobile" />
+		<result property="phone" column="phone" />
+		<result property="email" column="email" />
+		<result property="address" column="address" />
+		<result property="userType" column="userType" />
+		<result property="isValid" column="isValid" />
+		<result property="deptId" column="deptId" />
+		<result property="loginTime" column="loginTime" />
+		<result property="signPath" column="signPath" />
+		<result property="password" column="password" />
+		<result property="deleted" column="deleted" />
+		<association property="roles" column="id" select="Role.getByUserId" />
+	</resultMap>
+
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,username ,password ,realname ,deleted,sort,sex ,post ,mobile ,phone ,email ,address ,userType ,isValid ,deptId ,loginTime ,signPath ,createTime
+	    ]]>
+	</sql>
+	<!--getAll -->
+	<select id="getAll" resultType="com.hndfsj.admin.domain.User">
+		SELECT sys_user.*, sys_dept.name as deptName FROM sys_user left join
+		sys_dept on sys_dept.id =sys_user.deptId
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="getById" resultType="com.hndfsj.admin.domain.User">
+		SELECT sys_user.*,(SELECT
+		sys_dept.name FROM sys_dept where
+		sys_dept.id=deptId) as deptName FROM
+		sys_user where id = #{value} and deleted='0'
+	</select>
+
+	<select id="getByIdfull" resultType="com.hndfsj.admin.domain.User">
+		SELECT sys_user.id
+		,sys_user.username ,sys_user.realname ,sys_user.sort,sys_user.sex
+		,sys_user.post ,sys_user.mobile ,sys_user.phone
+		,sys_user.email ,sys_user.address ,sys_user.userType ,sys_user.isValid
+		,sys_user.deptId ,sys_user.loginTime ,sys_user.signPath
+		,(SELECT sys_dept.name FROM sys_dept where sys_dept.id=deptId) as deptName
+		FROM sys_user where id = #{value}
+	</select>
+
+	<insert id="insert">
+		insert into sys_user
+		(id,sort,username,password,realname,sex,post,
+		mobile,phone,email,address,isValid,deptId,signPath,userType,deleted,createTime)
+		values
+		(#{id},#{sort},#{username},#{password},#{realname},
+		#{sex},#{post},#{mobile},#{phone},
+		#{email},#{address},#{isValid},#{deptId},#{signPath},#{userType},#{deleted},#{createTime})
+	</insert>
+	<update id="update">
+		update sys_user set
+		username=#{username},
+		realname=#{realname},
+		sort=#{sort},
+		sex=#{sex},post=#{post},mobile=#{mobile},
+		phone=#{phone},email=#{email},address=#{address},isValid=#{isValid},
+		deptId=#{deptId},signPath=#{signPath},userType=#{userType},
+		deleted=#{deleted}
+		where
+		id=#{id}
+	</update>
+	<select id="count" resultType="int">
+		SELECT count(*) FROM sys_user
+		<include refid="Fragment.simpleAndOrCondition" />
+	</select>
+	<!--getUserRoleByUserId -->
+	<select id="getManagedUser" resultMap="manageUser">
+		 <![CDATA[
+			SELECT sys_user.id ,username,realname ,userType,
+			deptId,sex ,post ,mobile ,phone,signPath,
+			sys_user.sort ,isValid,deleted,createTime
+			 FROM	sys_user
+	    ]]>
+			<include refid="Fragment.simpleAndOrCondition" />
+			order by  sort desc
+	</select>
+	<!-- getUsersByDeptId -->
+	<select id="getUsersByDeptId" resultMap="userRole">
+		SELECT * FROM
+		sys_user
+		WHERE deptId =#{deptId} and isValid='1' and deleted='0'
+		order by sort desc
+	</select>
+	<select id="getAllUsersBySupDeptId" resultMap="userDeptName">
+		SELECT * FROM
+		sys_user LEFT JOIN sys_dept on
+		sys_dept.id=sys_user.deptId
+		WHERE
+		sys_dept.superDep=#{deptId} and sys_user.isValid='1' and deleted='0'
+		order by sort desc
+	</select>
+	<!-- getRoleUserByDeptId -->
+	<select id="getRoleUserByDeptId" resultMap="user">
+		SELECT sys_user.*FROM sys_user LEFT JOIN sys_re_user_role on userId=id
+		<include refid="Fragment.simpleAndOrCondition" />
+	</select>
+	<!-- getUsersByResId -->
+	<select id="getUsersByResId" resultMap="user">
+		SELECT
+		id,username,password,realname,sex,deleted,post,mobile,phone,email,address,isValid,loginTime,deptId,signPath,userType
+		FROM sys_user,sys_re_user_resource ur
+		WHERE
+		id=ur.userId and
+		ur.resId=#{resId} and deleted='0'
+	</select>
+	<!-- getUsersByRoleId -->
+	<select id="getUsersByRoleId" resultMap="user">
+		SELECT
+		id,username,password,realname,deleted,sex,post,mobile,phone,email,address,isValid,loginTime,deptId,signPath,userType
+		FROM sys_user,sys_re_user_role ur
+		WHERE
+		id=ur.userId and
+		ur.roleId=#{roleId} and deleted='0'
+	</select>
+	<!--getUserByUserName -->
+	<select id="getUserByUserName" resultMap="userSecurity">
+		SELECT
+		a.id,a.username,
+		a.password,a.realname,a.isValid,a.loginTime,a.deptId,a.sex,
+		a.post,a.mobile,a.deleted,a.phone,a.email,a.address,a.signPath,a.userType
+		FROM (select * from sys_user where
+		username=#{value} and deleted='0') a
+	</select>
+
+	<!--updatePassword -->
+	<update id="updatePassword">
+		update sys_user set password=#{password} where
+		id=#{id} and deleted='0'
+	</update>
+
+	<!--updateLoginTime -->
+	<update id="updateLoginTime">
+		update sys_user set loginTime=#{loginTime} where
+		id=#{id} and deleted='0'
+	</update>
+
+	<!--getUserRoleByUserId -->
+	<select id="getUserRoleByUserId" resultMap="userSecurity">
+		SELECT
+		id,username,password,realname,isValid,loginTime,deptId,sex,
+		post,mobile,phone,email,address,signPath,userType,deleted
+		FROM sys_user
+		where id=#{value} and deleted='0'
+	</select>
+	<!--getSystemUserAll -->
+	<select id="getSystemUserAll" resultMap="user">
+		select * from sys_user
+		where (userType='1' or userType='0') and deleted='0'
+	</select> 
+
+	<!--deleteUserRoleByUserId -->
+	<delete id="deleteUserRoleByUserId">
+		delete from sys_re_user_role where userid = #{value} 
+	</delete>
+	<!--deleteUserRoleByUserAndRoleId -->
+	<delete id="deleteUserRoleByUserAndRoleId">
+		delete from sys_re_user_role where userId = #{id} and
+		roleId=#{name}  
+	</delete>
+	<!--insertUserRole -->
+	<insert id="insertUserRole" parameterType="java.util.Map">
+		insert into
+		sys_re_user_role (userId,roleId) values (#{userId},#{roleId})
+	</insert>
+
+	<!--deleteResourceByUserId -->
+	<delete id="deleteResourceByUserId">
+		delete from sys_re_user_resource where userid =
+		#{value} 
+	</delete>
+
+	<!--insertUserResource -->
+	<insert id="insertUserResource" parameterType="java.util.Map">
+		insert into
+		sys_re_user_resource (userId,ResId) values
+		(#{userId},#{resourceId})
+	</insert>
+	<!-- updateUserByName -->
+	<update id="updateUserByName">
+		update sys_user set
+		mobile=#{mobile},phone=#{phone},email=#{email},address=#{address}
+		where username=#{username} 
+	</update>
+	<!-- 根据用户名维护个人信息 -->
+	<update id="updateOwnInfo">
+		update sys_user set
+		post=#{post},mobile=#{mobile},phone=#{phone},email=#{email},address=#{address}
+		where id=#{id}
+	</update>
+	<!--根据用户ID获得该用户所属部门的所有用户 -->
+	<select id="getDeptUsersByUserId" resultMap="userDeptName">
+		select * from
+		sys_user where deptId in( select deptId from sys_user where
+		id=#{id}) and deleted='0'
+	</select>
+	<!-- getChildrenUsersByDeptId -->
+	<select id="getChildrenUsersByDeptId" parameterType="string"
+		resultMap="userDeptName">
+		SELECT * FROM
+		sys_user WHERE deptId in (${value}) and
+		isValid='1' and deleted='0'
+	</select>
+
+	<!-- 根据用户组id得到分配的用户信息 -->
+	<select id="getUserByGroupId" resultMap="user">
+		SELECT * FROM sys_user
+		WHERE id IN (SELECT userId FROM sys_re_user_group WHERE
+		groupId=#{groupId}) and deleted='0'
+	</select>
+	<!-- 根据用户组id得到分配的用户信息 -->
+	<select id="queryName" resultType="java.lang.String">
+		SELECT realname FROM sys_user
+		WHERE id =#{userId} and deleted='0'
+	</select>
+
+	<!-- 根据用户组id得到分配的用户信息 -->
+	<select id="queryMobile" resultType="java.lang.String">
+		SELECT mobile FROM sys_user
+		WHERE id =#{userId} and deleted='0'
+	</select>
+
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.User">
+		SELECT ${map.columns} FROM
+		sys_user
+		<include refid="Fragment.leftSql" />
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="countByDeptId" resultType="int">
+		SELECT count(*) FROM
+		sys_user
+		where deptId=#{deptId} and deleted='0'
+	</select>
+
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM sys_user WHERE
+        id = #{id}  
+    ]]>
+	</delete>
+	<!--updateSort -->
+	<update id="updateSort">
+		update sys_user
+		set
+		sort=#{sort}
+		where id=#{id} and deleted='0'
+	</update>
+
+</mapper>

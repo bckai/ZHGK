@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserNode">
+
+    <resultMap id="userNode" type="com.hndfsj.admin.domain.UserNode">
+        <result property="nodeId" column="node_id"/>
+        <association property="nodeName" column="node_id" select="LineNode.getByName" />
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        user_id ,node_id 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="userNode">
+      SELECT * FROM bas_user_node
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.UserNode">
+		SELECT ${map.columns} FROM bas_user_node
+		<include refid="Fragment.leftSql" />
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM bas_user_node
+		<include refid="Fragment.leftSql" />
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="userNode">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM bas_user_node 
+	        WHERE 
+		        user_id = #{userId} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO bas_user_node (
+        	user_id ,
+        	node_id 
+        ) VALUES (
+			#{userId} ,
+			#{nodeId} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE bas_user_node SET
+	        node_id = #{nodeId} 
+        WHERE 
+	        user_id = #{userId} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM bas_user_node WHERE
+        user_id = #{userId} 
+    ]]>
+    </delete>
+   
+
+</mapper>

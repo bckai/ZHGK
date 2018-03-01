@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Resource">
+
+	<resultMap id="resource" type="com.hndfsj.admin.domain.Resource">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="url" column="url" />
+		<result property="isValid" column="isValid" />
+		<result property="modId" column="modId" />
+		<result property="method" column="method" />
+		<result property="sortNo" column="sortNo" />
+	</resultMap>
+	<resultMap id="securityResource" type="com.hndfsj.admin.domain.Resource">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="url" column="url" />
+		<result property="method" column="method" />
+		<association property="users" column="id"  select="User.getUsersByResId" />
+		<association property="roles" column="id"  select="Role.getRolesByResId" />
+	</resultMap>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,name ,url ,isValid ,modId ,method ,sortNo 
+	    ]]>
+	</sql>
+
+
+	<!--getAll -->
+	<select id="getAll" resultMap="resource">
+		SELECT * FROM sys_resource
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.Resource">
+		SELECT ${map.columns} FROM sys_resource
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="count" resultType="int">
+		SELECT count(*) FROM sys_resource
+		<include refid="Fragment.simpleAndOrCondition" />
+	</select>
+
+	<select id="getById" resultMap="resource">
+		SELECT
+		<include refid="columns" />
+		 <![CDATA[
+	        FROM sys_resource 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+	</select>
+
+
+	<insert id="insert">
+    <![CDATA[
+        INSERT INTO sys_resource (
+        	id ,
+        	name ,
+        	url ,
+        	isValid ,
+        	modId ,
+        	method ,
+        	sortNo 
+        ) VALUES (
+			#{id} ,
+			#{name} ,
+			#{url} ,
+			#{isValid} ,
+			#{modId} ,
+			#{method} ,
+			#{sortNo} 
+        )
+    ]]>
+
+	</insert>
+
+	<update id="update">
+    <![CDATA[
+        UPDATE sys_resource SET
+	        name = #{name} ,
+	        url = #{url} ,
+	        isValid = #{isValid} ,
+	        modId = #{modId} ,
+	        method = #{method} ,
+	        sortNo = #{sortNo} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+
+
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM sys_resource WHERE
+        id = #{id} 
+    ]]>
+	</delete>
+	<!--getResourcesForSecurity -->
+	<select id="getResourcesForSecurity" resultMap="securityResource">
+		select* from sys_resource 
+		where isvalid='1'
+		order by sortNo asc
+	</select>
+
+	<!--getResourceByResourceName -->
+	<select id="getResourceByResourceName" resultMap="resource">
+		SELECT ID,
+		Name, URL, method,IsValid, ModId,sortNo FROM sys_resource where
+		name =
+		#{value}
+	</select>
+
+	<!--getResourceByModuleId -->
+	<select id="getResourceByModuleId" resultMap="resource">
+		SELECT ID, Name,
+		URL, method,IsValid, ModId,sortNo FROM sys_resource where
+		ModId=#{value}
+	</select>
+
+	<!--getResourceByUserIdAndModuleId -->
+	<select id="getResourceByUserIdAndModuleId" resultMap="resource"
+		parameterType="java.util.Map">
+		select ID, Name, URL, method,IsValid, ModId,sortNo from
+		(SELECT UserId, ResId FROM sys_re_user_resource where userid
+		=#{userId}) b,(SELECT ID, Name, URL, method,IsValid, ModId FROM
+		sys_resource where modid=#{moduleId}) c where b.ResId = c.ID;
+	</select>
+
+	<!--getResourceByUserId -->
+	<select id="getResourceByUserId" resultMap="resource">
+		SELECT
+		r.ID,r.Name,r.URL,r.IsValid,r.ModId,r.Method,r.sortNo FROM
+		sys_re_user_resource ur,sys_resource r where ur.resid=r.id and
+		ur.userid=#{value}
+	</select>
+
+	<!--getResourceByRoleId -->
+	<select id="getResourceByRoleId" resultMap="resource">
+		SELECT
+		r.ID,r.Name,r.URL,r.IsValid,r.ModId,r.Method,r.sortNo FROM
+		sys_re_role_resource rr,sys_resource r where rr.resid=r.id and
+		rr.roleid=#{value}
+	</select>
+
+	<!--getResourceByRoleIdAndModuleId -->
+	<select id="getResourceByRoleIdAndModuleId" resultMap="resource"
+		parameterType="java.util.Map">
+		select ID, Name, URL, method,IsValid, ModId,sortNo from
+		(SELECT RoleId, ResId FROM sys_re_role_resource where roleId
+		=#{roleId}) b,(SELECT ID, Name, URL, method,IsValid, ModId FROM
+		sys_resource where modid=#{moduleId}) c where b.ResId = c.ID;
+	</select>
+	<select id="findAllResourceUrl" resultType="com.hndfsj.admin.domain.Resource">
+		select url from
+		sys_resource where isValid='1'
+	</select>
+	<select id="getResourceIdAndRoleId" resultType="int"
+		parameterType="java.util.Map">
+		select count(*) from sys_re_role_resource where
+		resId=#{resourceId} and
+		roleId=#{roleId}
+	</select>
+
+</mapper>

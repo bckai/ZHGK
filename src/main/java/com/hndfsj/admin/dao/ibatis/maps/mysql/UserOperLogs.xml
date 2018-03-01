@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserOperLogs">
+
+    <resultMap id="userOperLogs" type="com.hndfsj.admin.domain.UserOperLogs">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="content" column="content"/>
+        <result property="request" column="request"/>
+        <result property="response" column="response"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,user_id ,content ,request ,response ,create_time 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="userOperLogs">
+      SELECT * FROM sys_user_oper_logs
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.UserOperLogs">
+		SELECT ${map.columns} FROM sys_user_oper_logs
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM sys_user_oper_logs
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="userOperLogs">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM sys_user_oper_logs 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO sys_user_oper_logs (
+        	id ,
+        	user_id ,
+        	content ,
+        	request ,
+        	response ,
+        	create_time 
+        ) VALUES (
+			#{id} ,
+			#{userId} ,
+			#{content} ,
+			#{request} ,
+			#{response} ,
+			#{createTime} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE sys_user_oper_logs SET
+	        user_id = #{userId} ,
+	        content = #{content} ,
+	        request = #{request} ,
+	        response = #{response} ,
+	        create_time = #{createTime} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM sys_user_oper_logs WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+   
+
+</mapper>

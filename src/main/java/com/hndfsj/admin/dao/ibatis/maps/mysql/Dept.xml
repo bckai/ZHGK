@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Dept">
+
+	<resultMap id="dept" type="com.hndfsj.admin.domain.Dept">
+		<result property="id" column="id" />
+		<result property="code" column="code" />
+		<result property="name" column="name" />
+		<result property="superDep" column="superDep" />
+		<result property="manager" column="manager" />
+		<result property="address" column="address" />
+		<result property="isValid" column="isValid" />
+		<result property="shortName" column="shortName" />
+	</resultMap>
+	<resultMap id="countDept" type="com.hndfsj.admin.domain.Dept"
+		extends="dept">
+		<association property="count" column="id" select="User.countByDeptId" />
+	</resultMap>
+	<resultMap id="deptMember" type="com.hndfsj.admin.domain.Dept"
+		extends="dept">
+		<association property="members" column="id"
+			select="User.getAllUsersBySupDeptId" />
+		<association property="subDepts" select="Dept.getDeptBySuperId"
+			column="id" />
+	</resultMap>
+	<resultMap id="mobiledeptMember" type="com.hndfsj.admin.domain.Dept"
+		extends="dept">
+		<association property="members" column="id"
+			select="User.getUsersByDeptId" />
+		<association property="subDepts" select="Dept.getDeptBySuperId"
+			column="id" />
+	</resultMap>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,code ,name ,superDep ,manager ,address ,isValid ,shortName 
+	    ]]>
+	</sql>
+
+
+	<!--getAll -->
+	<select id="getAll" resultMap="dept">
+		SELECT * FROM sys_dept
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.Dept">
+		SELECT ${map.columns} FROM sys_dept
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="count" resultType="int">
+		SELECT count(*) FROM sys_dept
+		<include refid="Fragment.simpleAndOrCondition" />
+	</select>
+
+	<select id="getById" resultMap="dept">
+		SELECT
+		<include refid="columns" />
+		 <![CDATA[
+	        FROM sys_dept 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+	</select>
+
+
+	<insert id="insert">
+    <![CDATA[
+        INSERT INTO sys_dept (
+        	id ,
+        	code ,
+        	name ,
+        	superDep ,
+        	manager ,
+        	address ,
+        	isValid ,
+        	shortName  
+        ) VALUES (
+			#{id} ,
+			#{code} ,
+			#{name} ,
+			#{superDep} ,
+			#{manager} ,
+			#{address} ,
+			#{isValid} ,
+			#{shortName}  
+        )
+    ]]>
+
+	</insert>
+
+	<update id="update">
+    <![CDATA[
+        UPDATE sys_dept SET
+	        code = #{code} ,
+	        name = #{name} ,
+	        superDep = #{superDep} ,
+	        manager = #{manager} ,
+	        address = #{address} ,
+	        isValid = #{isValid} ,
+	        shortName = #{shortName} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	<sql id="allcolumns">
+	    <![CDATA[
+        sys_dept.id , sys_dept.code , sys_dept.name,sys_dept.address , sys_dept.superDep , sys_dept.manager ,
+         sys_dept.isValid ,sys_dept.shortName
+	    ]]>
+	</sql>
+
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM sys_dept WHERE
+        id = #{id} 
+    ]]>
+	</delete>
+	<select id="getDeptMember" resultMap="deptMember">
+		SELECT * FROM sys_dept
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="getDeptMobileMember" resultMap="mobiledeptMember">
+		SELECT * FROM sys_dept
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="getNameById" resultType="string">
+		SELECT name
+		FROM sys_dept
+		WHERE
+		id = #{id}
+
+	</select>
+	<select id="getByMemberId" resultMap="countDept">
+		SELECT
+		<include refid="allcolumns" />
+		 <![CDATA[
+	        FROM sys_dept           
+	    ]]>
+	</select>
+	<select id="getDeptBySuperId" resultMap="countDept">
+		SELECT
+		<include refid="columns" />
+		 <![CDATA[
+	        FROM sys_dept 
+	        WHERE 
+		        superDep = #{id} 
+	    ]]>
+	</select>
+	<!--update 部门负责人 -->
+	<update id="updateDeptManager">
+		update sys_dept set manager=#{manager} where id=#{id}
+	</update>
+	<!--updateSort -->
+	<update id="updateSort">
+		update sys_dept 
+		set 
+		sort=#{sort} ,
+		superDep=#{superDep} 
+		where id=#{id}
+	</update>
+</mapper>

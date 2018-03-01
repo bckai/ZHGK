@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="VdStruct">
+
+    <resultMap id="vdStruct" type="com.hndfsj.app.device.domain.VdStruct">
+        <result property="dvcId" column="dvcId"/>
+        <result property="carType" column="carType"/>
+        <result property="createTime" column="create_time"/>
+        <result property="period" column="period"/>
+        <result property="lane1Flux" column="lane1Flux"/>
+        <result property="lane2Flux" column="lane2Flux"/>
+        <result property="lane3Flux" column="lane3Flux"/>
+        <result property="lane4Flux" column="lane4Flux"/>
+        <result property="lane5Flux" column="lane5Flux"/>
+        <result property="lane6Flux" column="lane6Flux"/>
+        <result property="lane7Flux" column="lane7Flux"/>
+        <result property="lane8Flux" column="lane8Flux"/>
+        <result property="lane1Speed" column="lane1Speed"/>
+        <result property="lane2Speed" column="lane2Speed"/>
+        <result property="lane3Speed" column="lane3Speed"/>
+        <result property="lane4Speed" column="lane4Speed"/>
+        <result property="lane5Speed" column="lane5Speed"/>
+        <result property="lane6Speed" column="lane6Speed"/>
+        <result property="lane7Speed" column="lane7Speed"/>
+        <result property="lane8Speed" column="lane8Speed"/>
+        <result property="lane1Occ" column="lane1Occ"/>
+        <result property="lane2Occ" column="lane2Occ"/>
+        <result property="lane3Occ" column="lane3Occ"/>
+        <result property="lane4Occ" column="lane4Occ"/>
+        <result property="lane5Occ" column="lane5Occ"/>
+        <result property="lane6Occ" column="lane6Occ"/>
+        <result property="lane7Occ" column="lane7Occ"/>
+        <result property="lane8Occ" column="lane8Occ"/>
+        <result property="fluxUp" column="fluxUp"/>
+        <result property="fluxDown" column="fluxDown"/>
+        <result property="speedUp" column="speedUp"/>
+        <result property="speedDown" column="speedDown"/>
+        <result property="occUp" column="occUp"/>
+        <result property="occDown" column="occDown"/>
+        <result property="laneNum" column="laneNum"/>
+        <result property="transFlag" column="transFlag"/>
+        <result property="id" column="id"/>
+    </resultMap>
+	<resultMap id="vdStructInfo" extends="vdStruct" type="com.hndfsj.app.device.domain.VdStruct" >
+    	<result property="name" column="name"/>
+ 	</resultMap>
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        dvcId ,carType ,create_time ,period ,lane1Flux ,lane2Flux ,lane3Flux ,lane4Flux ,lane5Flux ,lane6Flux ,lane7Flux ,lane8Flux ,lane1Speed ,lane2Speed ,lane3Speed ,lane4Speed ,lane5Speed ,lane6Speed ,lane7Speed ,lane8Speed ,lane1Occ ,lane2Occ ,lane3Occ ,lane4Occ ,lane5Occ ,lane6Occ ,lane7Occ ,lane8Occ ,fluxUp ,fluxDown ,speedUp ,speedDown ,occUp ,occDown ,laneNum ,transFlag ,id 
+	    ]]>
+	</sql>
+	
+	 <select id="getAllPage" resultMap="vdStruct">
+      SELECT * FROM 
+      	<choose>
+     		<when test="map.tableSql !=null and map.tableSql.size()>0">
+     			 ( 	
+			       <foreach item="item" index="index" collection="map.tableSql"  separator="union">
+			      		select * from ${item.tableName} where create_time > #{item.startTime} and create_time &lt; #{item.endTime}
+			      </foreach>
+			     ) as hd_vd_struct 
+	     	</when>
+     	 <otherwise>
+     		hd_vd_struct
+      	</otherwise>
+      </choose>
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+    <!--getAll-->
+    <select id="getAll" resultMap="vdStruct">
+      SELECT * FROM hd_vd_struct
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultMap="vdStructInfo">
+		SELECT ${map.columns} FROM 
+		<choose>
+     		 <when test="map.tableSql !=null and map.tableSql.size()>0">
+     			 ( 	
+			       <foreach item="item" index="index" collection="map.tableSql"  separator="union">
+			      		select * from ${item.tableName} 
+			      </foreach>
+			     ) as hd_vd_struct 
+	     	</when>
+     	 <otherwise>
+     		hd_vd_struct
+      	</otherwise>
+      </choose>
+		<include refid="Fragment.leftSql" />
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM hd_vd_struct
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="vdStruct">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM hd_vd_struct 
+	        WHERE 
+		        dvcId = #{id} 
+	    ]]>
+    </select>
+    
+    <select id="getByIdYearsRecord" resultMap="vdStruct">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM hd_vd_struct 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO ${table} (
+        	dvcId ,
+        	carType ,
+        	create_time ,
+        	period ,
+        	lane1Flux ,
+        	lane2Flux ,
+        	lane3Flux ,
+        	lane4Flux ,
+        	lane5Flux ,
+        	lane6Flux ,
+        	lane7Flux ,
+        	lane8Flux ,
+        	lane1Speed ,
+        	lane2Speed ,
+        	lane3Speed ,
+        	lane4Speed ,
+        	lane5Speed ,
+        	lane6Speed ,
+        	lane7Speed ,
+        	lane8Speed ,
+        	lane1Occ ,
+        	lane2Occ ,
+        	lane3Occ ,
+        	lane4Occ ,
+        	lane5Occ ,
+        	lane6Occ ,
+        	lane7Occ ,
+        	lane8Occ ,
+        	fluxUp ,
+        	fluxDown ,
+        	speedUp ,
+        	speedDown ,
+        	occUp ,
+        	occDown ,
+        	laneNum ,
+        	transFlag ,
+        	id 
+        ) VALUES (
+			#{dvcId} ,
+			#{carType} ,
+			#{createTime} ,
+			#{period} ,
+			#{lane1Flux} ,
+			#{lane2Flux} ,
+			#{lane3Flux} ,
+			#{lane4Flux} ,
+			#{lane5Flux} ,
+			#{lane6Flux} ,
+			#{lane7Flux} ,
+			#{lane8Flux} ,
+			#{lane1Speed} ,
+			#{lane2Speed} ,
+			#{lane3Speed} ,
+			#{lane4Speed} ,
+			#{lane5Speed} ,
+			#{lane6Speed} ,
+			#{lane7Speed} ,
+			#{lane8Speed} ,
+			#{lane1Occ} ,
+			#{lane2Occ} ,
+			#{lane3Occ} ,
+			#{lane4Occ} ,
+			#{lane5Occ} ,
+			#{lane6Occ} ,
+			#{lane7Occ} ,
+			#{lane8Occ} ,
+			#{fluxUp} ,
+			#{fluxDown} ,
+			#{speedUp} ,
+			#{speedDown} ,
+			#{occUp} ,
+			#{occDown} ,
+			#{laneNum} ,
+			#{transFlag} ,
+			#{id} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE hd_vd_struct SET
+	        dvcId = #{dvcId} ,
+	        carType = #{carType} ,
+	        create_time = #{createTime} ,
+	        period = #{period} ,
+	        lane1Flux = #{lane1Flux} ,
+	        lane2Flux = #{lane2Flux} ,
+	        lane3Flux = #{lane3Flux} ,
+	        lane4Flux = #{lane4Flux} ,
+	        lane5Flux = #{lane5Flux} ,
+	        lane6Flux = #{lane6Flux} ,
+	        lane7Flux = #{lane7Flux} ,
+	        lane8Flux = #{lane8Flux} ,
+	        lane1Speed = #{lane1Speed} ,
+	        lane2Speed = #{lane2Speed} ,
+	        lane3Speed = #{lane3Speed} ,
+	        lane4Speed = #{lane4Speed} ,
+	        lane5Speed = #{lane5Speed} ,
+	        lane6Speed = #{lane6Speed} ,
+	        lane7Speed = #{lane7Speed} ,
+	        lane8Speed = #{lane8Speed} ,
+	        lane1Occ = #{lane1Occ} ,
+	        lane2Occ = #{lane2Occ} ,
+	        lane3Occ = #{lane3Occ} ,
+	        lane4Occ = #{lane4Occ} ,
+	        lane5Occ = #{lane5Occ} ,
+	        lane6Occ = #{lane6Occ} ,
+	        lane7Occ = #{lane7Occ} ,
+	        lane8Occ = #{lane8Occ} ,
+	        fluxUp = #{fluxUp} ,
+	        fluxDown = #{fluxDown} ,
+	        speedUp = #{speedUp} ,
+	        speedDown = #{speedDown} ,
+	        occUp = #{occUp} ,
+	        occDown = #{occDown} ,
+	        laneNum = #{laneNum} ,
+	        transFlag = #{transFlag} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	<select id="status" resultMap="vdStruct">
+	<![CDATA[
+		SELECT * FROM hd_vd_struct WHERE create_time > DATE_SUB(NOW(), INTERVAL 30 MINUTE) AND dvcId = #{dvcId}
+		 ]]>
+	</select>
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM hd_vd_struct WHERE
+        dvcId = #{dvcId} 
+    ]]>
+    </delete>
+    
+    <select id="getTableCount" resultType="int" >
+   		select count(*) from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA=#{db} and TABLE_NAME = #{table};  
+   </select>
+   <insert id="insertTable">
+   		   CREATE TABLE ${table} SELECT * FROM hd_vd_struct  where 1=0
+   </insert>
+	<select id="isTableExists" resultType="int">
+		select 
+		<![CDATA[
+			count(*) from `INFORMATION_SCHEMA`.`TABLES` where table_name = #{table} and TABLE_SCHEMA = #{db}
+		 ]]>
+	</select>
+</mapper>

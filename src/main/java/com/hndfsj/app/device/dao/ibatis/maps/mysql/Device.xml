@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Device">
+
+	<resultMap id="device" type="com.hndfsj.app.device.domain.Device">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="direction" column="direction" />
+		<result property="type" column="type" />
+		<result property="createTime" column="create_time" />
+		<result property="modifyTime" column="modify_time" />
+		<result property="isDeleted" column="isDeleted" />
+		<result property="positions" column="position" />
+		<result property="sizes" column="size" />
+		<result property="video" column="video" />
+		<result property="count" column="count" />
+	</resultMap>
+	<resultMap id="deviceInfo" extends="device"
+		type="com.hndfsj.app.device.domain.Device">
+		<association property="deviceConfig" column="dvcId=id"
+			select="DeviceConfig.getById"></association>
+	</resultMap>
+
+	<resultMap id="deviceVdYearsRecord" extends="device"
+		type="com.hndfsj.app.device.domain.Device">
+		<association property="vdStructs" column="id=id"
+			select="VdStruct.getByIdYearsRecord"></association>
+	</resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,name ,direction ,create_time ,isDeleted ,position ,size ,type,modify_time,count
+	    ]]>
+	</sql>
+
+	<select id="deviceCollect" resultType="map">
+		SELECT
+			sys_dictionary.dicType,sys_dictionary.`value`,hd_device.`VALUE` deviceCount
+		FROM
+			(
+				SELECT
+					sys_dictionary.dicType,
+					count(*)
+				VALUE
+		
+				FROM
+					sys_dictionary
+				LEFT JOIN hd_device ON hd_device.type = sys_dictionary.`code`
+				WHERE
+					sys_dictionary.dicType IN (
+						SELECT
+							concat(
+								sys_dictionary.`code`,
+								"_TYPE"
+							)
+						FROM
+							sys_dictionary
+						WHERE
+							dicType = 'COUNT'
+					)
+				GROUP BY
+					dicType
+			) hd_device,
+			(
+				SELECT
+					concat(
+						sys_dictionary.`code`,
+						"_TYPE"
+					) dicType,
+					sys_dictionary.`value`
+				FROM
+					sys_dictionary
+				WHERE
+					sys_dictionary.dicType = 'COUNT'
+			) sys_dictionary
+		WHERE
+			hd_device.dicType = sys_dictionary.dicType
+	</select>
+	<select id="findAllInfo" resultMap="deviceInfo">
+		SELECT * FROM hd_device
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+
+	<select id="findVdYearsRecordAll" resultMap="deviceVdYearsRecord">
+		SELECT * FROM hd_device
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+
+	<!--getAll -->
+	<select id="getAll" resultMap="device">
+		SELECT * FROM hd_device
+		<include refid="Fragment.simpleAndOrCondition" />
+		<!-- <include refid="Fragment.basicSearchWrap" /> -->
+	</select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.app.device.domain.Device">
+		SELECT ${map.columns} FROM hd_device
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+	<select id="count" resultType="int">
+		SELECT count(*) FROM hd_device
+		<include refid="Fragment.simpleAndOrCondition" />
+	</select>
+
+	<select id="getById" resultMap="device">
+		SELECT
+		<include refid="columns" />
+		 <![CDATA[
+	        FROM hd_device 
+	        WHERE 
+		        id = #{id}  and isDeleted=0
+	    ]]>
+	</select>
+
+
+	<insert id="insert">
+    <![CDATA[
+        INSERT INTO hd_device (
+        	id ,
+        	name ,
+        	direction ,
+        	create_time ,
+        	isDeleted ,
+        	position ,
+        	type ,
+        	size ,
+        	video,
+        	modify_time
+        ) VALUES (
+			#{id} ,
+			#{name} ,
+			#{direction} ,
+			#{createTime} ,
+			#{isDeleted} ,
+			#{positions} ,
+			#{type} ,
+			#{sizes} ,
+			#{video} ,
+			#{modifyTime}
+        )
+    ]]>
+
+	</insert>
+
+	<update id="update">
+    <![CDATA[
+        UPDATE hd_device SET
+	        name = #{name} ,
+	        direction = #{direction} ,
+	        create_time = #{createTime} ,
+	        isDeleted = #{isDeleted} ,
+	        position = #{positions} ,
+	        size = #{sizes} ,
+	        modify_time	= #{modifyTime}
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+
+
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM hd_device WHERE
+        id = #{id} 
+    ]]>
+	</delete>
+
+	<update id="updateCount">
+    <![CDATA[
+        UPDATE hd_device
+		SET
+		count = count + 1
+		
+		WHERE
+			id = #{id} 
+    ]]>
+
+	</update>
+</mapper>

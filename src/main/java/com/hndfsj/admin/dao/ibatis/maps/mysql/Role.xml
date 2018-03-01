@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Role">
+
+    <resultMap id="role" type="com.hndfsj.admin.domain.Role">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="isValid" column="isValid"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,name ,description ,isValid ,sort 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="role">
+      SELECT * FROM sys_role
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.admin.domain.Role">
+		SELECT ${map.columns} FROM sys_role
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM sys_role
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="role">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM sys_role 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	<select id="getByUserId" resultMap="role">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM sys_role 
+	        left join sys_re_user_role on roleId=id
+    	    WHERE 
+		        userId = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO sys_role (
+        	id ,
+        	name ,
+        	description ,
+        	isValid ,
+        	sort 
+        ) VALUES (
+			#{id} ,
+			#{name} ,
+			#{description} ,
+			#{isValid} ,
+			#{sort} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE sys_role SET
+	        name = #{name} ,
+	        description = #{description} ,
+	        isValid = #{isValid} ,
+	        sort = #{sort} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM sys_role WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+     
+	<!--getRoleUnassignByUserId-->
+    <select id="getRoleUnassignByUserId" resultMap="role">
+		SELECT ID,Name,description,isValid,sort     FROM sys_role where id  not in (select roleid from sys_re_user_role where userid=#{value})
+	</select>
+	<!-- getRolesByResId -->
+	<select id="getRolesByResId" resultMap="role">
+		SELECT id, name, description, isValid,sort   FROM sys_role,sys_re_role_resource rr where id=rr.roleid AND ResId = #{ResId} 
+	</select>
+	<!--deleteResourceByRoleId-->
+	<delete id="deleteResourceByRoleId">
+		delete from sys_re_role_resource where roleid = #{value}
+	</delete>
+	
+	<!--insertRoleResource-->
+	<insert id="insertRoleResource" parameterType="java.util.Map">
+        insert into sys_re_role_resource (roleId,ResId) values (#{roleId},#{resourceId})
+    </insert>
+    
+    <!-- getRoleByRoleName -->
+    <select id="getRoleByRoleName" resultMap="role">
+    	SELECT id, name, description, isValid,sort   FROM sys_role where name=#{value}
+    </select>
+	
+		<!--getRoleAssignByUserId-->
+    <select id="getRoleAssignByUserId" resultMap="role">
+		SELECT ID,Name,description,isValid,sort    FROM sys_role where id  in (select roleid from sys_re_user_role where userid=#{value})
+	</select>
+	
+     <select id="getSignRoleByUserId" resultMap="role">
+		SELECT ID,Name,description,isValid,sort    FROM sys_role left join  sys_re_user_role on sys_role.id=sys_re_user_role.roleId where isValid="1" and userId=#{userId}
+	</select>
+
+</mapper>

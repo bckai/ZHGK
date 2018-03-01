@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Mysql">
+	<!--对数据库一些特殊处理SQL  -->
+    <!--create Table-->
+    
+    
+    <!--show 命令显示信息  -->
+    
+    <select id="show"  resultType="java.lang.String">
+    	show #{sql};	
+    </select>
+	 
+	
+	
+    <!--drop Table-->
+	<delete id="deleteById">
+    <![CDATA[
+        drop sys_dept 
+    ]]>
+    </delete>
+   
+
+</mapper>

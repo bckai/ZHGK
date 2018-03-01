@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Fragment">
+	<sql id="basicSearchWrap">
+		<if test="map!=null and map.groupBy!=null">  
+			GROUP BY ${map.groupBy}
+		</if>
+		<if test="sortConditions !=null">  
+			order by 
+			<foreach item="item" index="index" collection="sortConditions"
+				open=" " separator="," close=" ">
+				${item.key} ${item.value}
+			</foreach>
+		</if>
+		<if test="currentPage>0">
+			limit ${offset}, ${pageSize}
+		</if>
+	</sql>
+	<sql id="leftSql">
+		<if test="map!=null and map.leftSql!=null">  
+			 ${map.leftSql}
+		</if>
+	</sql>
+
+	<sql id="simpleAndOrCondition">
+		<where>
+			<if test="andConditions!=null">
+				<foreach item="item" index="index" collection="andConditions"
+					open=" " separator="and" close=" ">
+					<choose>
+						<when test="item.operator==escape">
+							${item.key} ${item.value}
+						</when>
+						<when test="item.operator==substring">
+							<!-- ${item.key} ${item.value} -->
+							${item.key}
+						</when>
+						<otherwise>
+							${item.key} ${item.operator} #{item.value}
+						</otherwise>
+					</choose>
+				</foreach>
+				<if test="orConditions!=null">
+					<foreach item="item" index="index" collection="orConditions"
+						open="and ( " separator="or" close=" )">
+						<choose>
+							<when test="item.operator==escape">
+								${item.key} ${item.value}
+							</when>
+							<when test="item.operator==substring">
+								<!-- ${item.key} ${item.value} -->
+								${item.key}
+							</when>
+							<otherwise>
+								${item.key} ${item.operator} #{item.value}
+							</otherwise>
+						</choose>
+					</foreach>
+				</if>
+			</if>
+			<if test="andConditions==null and orConditions!=null">
+				<foreach item="item" index="index" collection="orConditions"
+					open=" " separator="or" close=" ">
+					<choose>
+						<when test="item.operator==escape">
+							${item.key} ${item.value}
+						</when>
+						<when test="item.operator==substring">
+							<!-- ${item.key} ${item.value} -->
+							${item.key}
+						</when>
+						<otherwise>
+							${item.key} ${item.operator} #{item.value}
+						</otherwise>
+					</choose>
+				</foreach>
+			</if>
+		</where>
+	</sql>
+
+	<sql id="setUpdateParam">
+		<set>
+			<foreach item="item" index="index" collection="params" open=" "
+				separator="," close=" ">
+				${item.name} = #{item.value}
+			</foreach>
+		</set>
+	</sql>
+</mapper>

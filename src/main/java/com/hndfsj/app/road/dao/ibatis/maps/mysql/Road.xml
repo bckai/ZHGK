@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Road">
+
+    <resultMap id="road" type="com.hndfsj.road.domain.Road">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="start" column="start"/>
+        <result property="end" column="end"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,name ,start ,end 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="road">
+      SELECT * FROM bas_road
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.road.domain.Road">
+		SELECT ${map.columns} FROM bas_road
+		<include refid="Fragment.leftSql" />
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM bas_road
+		<include refid="Fragment.leftSql" />
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="road">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM bas_road 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO bas_road (
+        	id ,
+        	name ,
+        	start ,
+        	end 
+        ) VALUES (
+			#{id} ,
+			#{name} ,
+			#{start} ,
+			#{end} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE bas_road SET
+	        name = #{name} ,
+	        start = #{start} ,
+	        end = #{end} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM bas_road WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+   
+
+</mapper>

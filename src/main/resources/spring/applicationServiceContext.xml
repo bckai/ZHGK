@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd" default-autowire="byName">
+		
+	<aop:config expose-proxy="true" >
+		<aop:pointcut id="commonPointcut" expression="execution(* com.hndfsj.common.services..*.*(..))" />
+		<aop:pointcut id="adminPointcut" expression="execution(* com.hndfsj.admin.services..*.*(..))" />
+		<aop:pointcut id="frameworkPointcut" expression="execution(* com.hndfsj.framework.service..*.*(..))" />
+		<aop:pointcut id="templatePointcut" expression="execution(* com.hndfsj.weixin.template.message.service..*.*(..))" />
+		<aop:pointcut id="infoPointcut" expression="execution(* com.hndfsj.app..service..*.*(..))" />
+		<aop:pointcut id="driverPointcut" expression="execution(* com.hndfsj.driver.service..*.*(..))" />
+		
+		<aop:advisor pointcut-ref="commonPointcut" advice-ref="txAdvice"/>
+		<aop:advisor pointcut-ref="templatePointcut" advice-ref="txAdvice"/>
+		<aop:advisor pointcut-ref="adminPointcut" advice-ref="txAdvice"/>
+		<aop:advisor pointcut-ref="frameworkPointcut" advice-ref="txAdvice"/>
+		<aop:advisor pointcut-ref="infoPointcut" advice-ref="txAdvice"/>
+		<aop:advisor pointcut-ref="driverPointcut" advice-ref="txAdvice"/>
+	</aop:config>
+	<tx:annotation-driven/>
+	<tx:advice id="txAdvice" >
+		<tx:attributes>
+			<tx:method name="*" propagation="REQUIRED"/>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="create*" propagation="REQUIRED"/>
+			<tx:method name="remove*" propagation="REQUIRED"/>
+			<tx:method name="new*" propagation="REQUIRED"/>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="store*" propagation="REQUIRED"/>
+			<tx:method name="set*" propagation="REQUIRED"/>
+			<tx:method name="login"/>
+			<tx:method name="get*" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- service 层的异常统一拦截类  -->
+	<bean id="exceptionHandleAdvice" class="com.hndfsj.exception.ExeceptionHandleAdvisor" scope="singleton"/>
+	
+</beans>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="TrafficEvent">
+
+    <resultMap id="trafficEvent" type="com.hndfsj.app.trafficevent.domain.TrafficEvent">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="content" column="content"/>
+        <result property="status" column="status"/>
+        <result property="coordinate" column="coordinate"/>
+        <result property="founder" column="founder"/>
+        <result property="founderId" column="founder_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="modifyTime" column="modify_time"/>
+    </resultMap>
+	<resultMap id="trafficEventInfo" extends="trafficEvent" type="com.hndfsj.app.trafficevent.domain.TrafficEvent">
+        <association property="trafficEventComments" column="id" select="TrafficEventComment.getByEventId"/>
+	</resultMap> 
+		
+	
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,title ,type ,content ,status ,coordinate ,founder ,founder_id ,create_time ,modify_time 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="trafficEventInfo">
+      SELECT * FROM bas_traffic_event
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.app.trafficevent.domain.TrafficEvent">
+		SELECT ${map.columns} FROM bas_traffic_event
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM bas_traffic_event
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="trafficEvent">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM bas_traffic_event 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO bas_traffic_event (
+        	id ,
+        	title ,
+        	type ,
+        	content ,
+        	status ,
+        	coordinate ,
+        	founder ,
+        	founder_id ,
+        	create_time ,
+        	modify_time 
+        ) VALUES (
+			#{id} ,
+			#{title} ,
+			#{type},
+			#{content} ,
+			#{status} ,
+			#{coordinate} ,
+			#{founder} ,
+			#{founderId} ,
+			#{createTime} ,
+			#{modifyTime} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE bas_traffic_event SET
+	        title = #{title} ,
+	        type = #{type},
+	        content = #{content} ,
+	        status = #{status} ,
+	        coordinate = #{coordinate} ,
+	        founder = #{founder} ,
+	        founder_id = #{founderId} ,
+	        create_time = #{createTime} ,
+	        modify_time = #{modifyTime} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM bas_traffic_event WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+   
+
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-2.5.xsd 
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-2.5.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+	default-lazy-init="true">
+
+	<!--
+		安全管理器 <property name="securityService"
+		ref="rwAdminSecurityService"></property>
+	-->
+	<bean id="securityManager"
+		class="com.hndfsj.framework.security.manager.SecurityCacheManagerImpl">
+		<property name="resourceCache" ref="resourceCache"></property>
+		<property name="userInfoCache" ref="userInfoCache"></property>
+		<property name="deptInfoCache" ref="deptInfoCache"></property>
+		<property name="userInLocalInfoCache" ref="userInLocalInfoCache"></property>
+		<property name="securityService" ref="rwAdminSecurityService"></property>
+	</bean>
+	<!-- resourcCache 实现 -->
+	<bean id="resourceCache"
+		class="com.hndfsj.framework.security.manager.EhCacheResourcCache">
+		<property name="cache" ref="resource">
+		</property>
+	</bean>
+	<bean id="resource" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager" ref="cacheManager"></property>
+		<property name="cacheName" value="adminResource"></property>
+	</bean>
+
+	<bean id="userInfoCache"
+		class="com.hndfsj.framework.security.manager.EhCacheUserInfoCache">
+		<property name="cache" ref="userInfo">
+		</property>
+	</bean>
+	<bean id="userInfo" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager" ref="cacheManager"></property>
+		<property name="cacheName" value="userInfo"></property>
+	</bean>
+	<bean id="userInLocalInfoCache"
+		class="com.hndfsj.framework.security.manager.EhCacheUserInfoCache">
+		<property name="cache" ref="userInLocalInfo">
+		</property>
+	</bean>
+	<bean id="userInLocalInfo" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager" ref="cacheManager"></property>
+		<property name="cacheName" value="userInLocalInfo"></property>
+	</bean>
+	<bean id="deptInfoCache"
+		class="com.hndfsj.framework.security.manager.EhCacheDeptInfoCache">
+		<property name="cache" ref="deptInLocalInfo">
+		</property>
+	</bean>
+	<bean id="deptInLocalInfo" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		<property name="cacheManager" ref="cacheManager"></property>
+		<property name="cacheName" value="deptInLocalInfo"></property>
+	</bean>
+	<bean id="rwAdminSecurityService"
+		class="com.hndfsj.admin.service.security.RWAdminSecurityServiceImpl"></bean>
+</beans>

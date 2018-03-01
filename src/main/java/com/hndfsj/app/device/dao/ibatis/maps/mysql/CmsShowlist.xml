@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="CmsShowlist">
+
+    <resultMap id="cmsShowlist" type="com.hndfsj.app.device.domain.CmsShowlist">
+        <result property="id" column="id"/>
+        <result property="dvcType" column="dvcType"/>
+        <result property="cdntLeft" column="cdntLeft"/>
+        <result property="cdntUp" column="cdntUp"/>
+        <result property="message" column="message"/>
+        <result property="playMode" column="playMode"/>
+        <result property="fontColor" column="fontColor"/>
+        <result property="fontStyle" column="fontStyle"/>
+        <result property="fontSize" column="fontSize"/>
+        <result property="keepTime" column="keepTime"/>
+        <result property="starFlag" column="starFlag"/>
+        <result property="createTime" column="create_time"/>
+        <result property="modifyTime" column="modify_time"/>
+        <result property="high" column="high"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        id ,dvcType ,cdntLeft ,cdntUp ,message ,playMode ,fontColor ,fontStyle ,fontSize ,keepTime ,starFlag ,create_time,modify_time,high
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="cmsShowlist">
+      SELECT * FROM hd_cms_showlist
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.app.device.domain.CmsShowlist">
+		SELECT ${map.columns} FROM hd_cms_showlist
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM hd_cms_showlist
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="cmsShowlist">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM hd_cms_showlist 
+	        WHERE 
+		        id = #{id} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO hd_cms_showlist (
+        	id ,
+        	dvcType ,
+        	cdntLeft ,
+        	cdntUp ,
+        	message ,
+        	playMode ,
+        	fontColor ,
+        	fontStyle ,
+        	fontSize ,
+        	keepTime ,
+        	starFlag ,
+        	high ,
+        	create_time,
+        	modify_time
+        ) VALUES (
+			#{id} ,
+			#{dvcType} ,
+			#{cdntLeft} ,
+			#{cdntUp} ,
+			#{message} ,
+			#{playMode} ,
+			#{fontColor} ,
+			#{fontStyle} ,
+			#{fontSize} ,
+			#{keepTime} ,
+			#{starFlag} ,
+			#{high} ,
+			#{createTime},
+        	#{modifyTime}
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE hd_cms_showlist SET
+	        dvcType = #{dvcType} ,
+	        cdntLeft = #{cdntLeft} ,
+	        cdntUp = #{cdntUp} ,
+	        message = #{message} ,
+	        playMode = #{playMode} ,
+	        fontColor = #{fontColor} ,
+	        fontStyle = #{fontStyle} ,
+	        fontSize = #{fontSize} ,
+	        keepTime = #{keepTime} ,
+	        starFlag = #{starFlag} ,
+	        high = #{high} ,
+	        create_time= #{createTime} ,
+        	modify_time= #{modifyTime}
+        WHERE 
+	        id = #{id} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM hd_cms_showlist WHERE
+        id = #{id} 
+    ]]>
+    </delete>
+   
+
+</mapper>

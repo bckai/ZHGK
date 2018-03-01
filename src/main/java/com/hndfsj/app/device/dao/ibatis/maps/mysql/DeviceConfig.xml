@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DeviceConfig">
+
+    <resultMap id="deviceConfig" type="com.hndfsj.app.device.domain.DeviceConfig">
+        <result property="dvcId" column="dvcId"/>
+        <result property="comPort" column="comPort"/>
+        <result property="isDeleted" column="isDeleted"/>
+        <result property="dvcBrand" column="dvcBrand"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        dvcId ,comPort  ,isDeleted  ,dvcBrand 
+	    ]]>
+	</sql>
+	
+	
+    <!--getAll-->
+    <select id="getAll" resultMap="deviceConfig">
+      SELECT * FROM hd_device_config
+        <include refid="Fragment.simpleAndOrCondition"/>
+        <include refid="Fragment.basicSearchWrap"/>
+    </select>
+	<!--getColumnsAll -->
+	<select id="getColumnsAll" resultType="com.hndfsj.app.device.domain.DeviceConfig">
+		SELECT ${map.columns} FROM hd_device_config
+		<include refid="Fragment.simpleAndOrCondition" />
+		<include refid="Fragment.basicSearchWrap" />
+	</select>
+    <select id="count" resultType="int">
+        SELECT count(*) FROM hd_device_config
+        <include refid="Fragment.simpleAndOrCondition" />
+    </select>
+	
+	<select id="getById" resultMap="deviceConfig">
+         SELECT <include refid="columns"/>
+		 <![CDATA[
+	        FROM hd_device_config 
+	        WHERE 
+		        dvcId = #{dvcId} 
+	    ]]>
+    </select>
+	
+	
+	<insert id="insert" >
+    <![CDATA[
+        INSERT INTO hd_device_config (
+        	dvcId ,
+        	comPort ,
+        	isDeleted ,
+        	dvcBrand 
+        ) VALUES (
+			#{dvcId} ,
+			#{comPort} ,
+			#{isDeleted} ,
+			#{dvcBrand} 
+        )
+    ]]>
+
+	</insert>
+	
+    <update id="update" >
+    <![CDATA[
+        UPDATE hd_device_config SET
+	        comPort = #{comPort} ,
+	        isDeleted = #{isDeleted} ,
+	        dvcBrand = #{dvcBrand} 
+        WHERE 
+	        dvcId = #{dvcId} 
+    ]]>
+    </update>
+	
+	
+	<delete id="deleteById">
+    <![CDATA[
+        DELETE FROM hd_device_config WHERE
+        dvcId = #{dvcId} 
+    ]]>
+    </delete>
+   
+
+</mapper>
